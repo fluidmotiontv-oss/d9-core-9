@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 Core (9)</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <style>
+        body { background: #0f172a; color: #10b981; font-family: sans-serif; text-align: center; padding: 24px 16px; margin: 0; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; max-width: 480px; margin: 20px auto; text-align: left; }
+        .btn { border: none; padding: 14px 24px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin: 6px; }
+        .btn-install { background-color: #10b981; color: #0f172a; }
+        .btn-reset { background-color: #ef4444; color: #ffffff; }
+    </style>
+</head>
+<body>
+    <h1>Dragon 9 Minimal Core</h1>
+    <p style="color: #94a3b8;">9-Agent Base Matrix Active</p>
+
+    <div style="margin: 30px 0;">
+        <button id="installBtn" class="btn btn-install">📲 Install D9 Core 9</button>
+        <button id="resetBtn" class="btn btn-reset">🔄 Reset PWA</button>
+    </div>
+
+    <div id="installStatus" style="color: #64748b; font-size: 0.85rem; margin-bottom: 20px;">
+        Tap Install above or use Chrome menu (⋮) -> Install app.
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top:0; color:#f8fafc;">Core Profile</h3>
+        <ul style="color: #cbd5e1; padding-left: 20px; line-height: 1.8;">
+            <li><strong>Matrix:</strong> 9 High-Efficiency Agents</li>
+            <li><strong>Port Target:</strong> 8082</li>
+            <li><strong>Resource Load:</strong> Low / High-Stability</li>
+        </ul>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const installStatus = document.getElementById('installStatus');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installStatus.innerText = "Native Android installer ready.";
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installStatus.innerText = `Result: ${outcome}`;
+            } else {
+                alert("If the installer doesn't open automatically, tap Chrome's top-right menu (⋮) and choose 'Install app' or 'Add to Home screen'.");
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', async () => {
+            if (confirm("Reset local cache?")) {
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (let r of regs) await r.unregister();
+                }
+                localStorage.clear();
+                window.location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
